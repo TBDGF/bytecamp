@@ -25,6 +25,5 @@ func main() {
 		auth.Whoami(g, database)
 	}
 
-	//
 	g.Run(":80")
 }
