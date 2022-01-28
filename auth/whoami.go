@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func Whoami(g *gin.Engine, Db *sqlx.DB) {
+func Whoami(g *gin.RouterGroup, Db *sqlx.DB) {
 	g.Handle("GET", "/auth/whoami", func(c *gin.Context) {
 		// 获取 cookie
 		cookie, err := c.Cookie("camp-session")
@@ -25,5 +25,4 @@ func Whoami(g *gin.Engine, Db *sqlx.DB) {
 		response.Data = info[0]
 		c.JSON(http.StatusOK, response)
 	})
-	g.Run(":80")
 }

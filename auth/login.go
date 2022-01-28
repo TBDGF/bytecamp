@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func Login(g *gin.Engine, Db *sqlx.DB) {
+func Login(g *gin.RouterGroup, Db *sqlx.DB) {
 
 	g.Handle("POST", "/auth/login", func(c *gin.Context) {
 		var response types.LoginResponse
@@ -24,7 +24,7 @@ func Login(g *gin.Engine, Db *sqlx.DB) {
 			Db.Select(&id, "select userid from userinfo where username=?", form.Username)
 			response.Data.UserID = id[0]
 			// 设置 cookie
-			c.SetCookie("camp-session", id[0], 3000, "/auth/whoami",
+			c.SetCookie("camp-session", id[0], 3000, "/",
 				"127.0.0.1", false, true)
 			c.JSON(http.StatusOK, response)
 		} else {
