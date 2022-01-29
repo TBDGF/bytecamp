@@ -34,13 +34,16 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	_, QErr := config.NewDB().Exec("update userinfo set nickname = ? where userid = ?", request.Nickname, request.UserID)
-	if QErr != nil {
+	ret, _ := config.NewDB().Exec("update userinfo set nickname = ? where userid = ?", request.Nickname, request.UserID)
+	row, _ := ret.RowsAffected()
+
+	if row == 0 {
 		// 用户不存在
 		response.Code = types.UserNotExisted
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
+
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 	return
