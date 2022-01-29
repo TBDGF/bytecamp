@@ -9,7 +9,7 @@ import (
 
 func main() {
 	r := gin.Default()
-	config.InitDB()
-	router.RegisterRouter(r)
+	config.InitDB()          // 数据库
+	router.RegisterRouter(r) // 接口
 	r.Run(":80")
 }

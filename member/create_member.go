@@ -34,14 +34,16 @@ func Create(c *gin.Context) {
 	var usertype []types.UserType
 	config.NewDB().Select(&usertype, "select usertype from userinfo where userid = ?", cookie)
 	if usertype[0] != types.Admin {
-		Return_paramInvalid(&response, c)
+		response.Code = types.PermDenied
+		response.Data.UserID = ""
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	// ------------- 错误返回参数不合法 -------------- //
 
 	// ---- 验证用户昵称: 不小于 4 位，不超过 20 位 ----
-	if len(request.Nickname) < 4 || len(request.Username) > 20 {
+	if len(request.Nickname) < 4 || len(request.Nickname) > 20 {
 		Return_paramInvalid(&response, c)
 		return
 	}

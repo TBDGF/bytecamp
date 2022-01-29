@@ -17,3 +17,6 @@ create table userinfo
 )engine=innoDB;
 
 # 系统内置管理员
+insert into users values('JudgeAdmin', 'JudgePassword2022')
+insert into userinfo(username, nickname, usertype) values('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022')
+
