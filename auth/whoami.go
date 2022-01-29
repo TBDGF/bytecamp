@@ -13,7 +13,7 @@ func Whoami(g *gin.RouterGroup, Db *sqlx.DB) {
 		cookie, err := c.Cookie("camp-session")
 		var response types.WhoAmIResponse
 		if err != nil {
-			response.Code = 6
+			response.Code = types.LoginRequired
 			response.Data = types.TMember{"", "", "", 0}
 			c.JSON(http.StatusBadRequest, response)
 			return
@@ -21,7 +21,7 @@ func Whoami(g *gin.RouterGroup, Db *sqlx.DB) {
 		var info []types.TMember
 
 		Db.Select(&info, "select * from userinfo where userid=?", cookie)
-		response.Code = 0
+		response.Code = types.OK
 		response.Data = info[0]
 		c.JSON(http.StatusOK, response)
 	})

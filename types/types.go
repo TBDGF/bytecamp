@@ -66,10 +66,10 @@ const (
 // 只有管理员才能添加
 
 type CreateMemberRequest struct {
-	Nickname string   // required，不小于 4 位 不超过 20 位
-	Username string   // required，只支持大小写，长度不小于 8 位 不超过 20 位
-	Password string   // required，同时包括大小写、数字，长度不少于 8 位 不超过 20 位
-	UserType UserType // required, 枚举值
+	Nickname string   `form:"nickname" binding:"required"` // required，不小于 4 位 不超过 20 位
+	Username string   `form:"username" binding:"required"` // required，只支持大小写，长度不小于 8 位 不超过 20 位
+	Password string   `form:"password" binding:"required"` // required，同时包括大小写、数字，长度不少于 8 位 不超过 20 位
+	UserType UserType `form:"usertype" binding:"required"` // required, 枚举值
 }
 
 type CreateMemberResponse struct {

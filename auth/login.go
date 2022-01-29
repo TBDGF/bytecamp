@@ -19,7 +19,7 @@ func Login(g *gin.RouterGroup, Db *sqlx.DB) {
 		var psd []string
 		Db.Select(&psd, "select password from users where name=?", form.Username)
 		if len(psd) != 0 && psd[0] == form.Password {
-			response.Code = 0
+			response.Code = types.OK
 			var id []string
 			Db.Select(&id, "select userid from userinfo where username=?", form.Username)
 			response.Data.UserID = id[0]
@@ -28,7 +28,7 @@ func Login(g *gin.RouterGroup, Db *sqlx.DB) {
 				"127.0.0.1", false, true)
 			c.JSON(http.StatusOK, response)
 		} else {
-			response.Code = 5
+			response.Code = types.WrongPassword
 			response.Data.UserID = ""
 			c.JSON(http.StatusBadRequest, response)
 		}

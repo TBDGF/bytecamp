@@ -12,7 +12,7 @@ func Logout(g *gin.RouterGroup) {
 		c.SetCookie("camp-session", "", -1, "/",
 			"127.0.0.1", false, true)
 		var response types.LogoutResponse
-		response.Code = 0
+		response.Code = types.OK
 		c.JSON(http.StatusOK, response)
 	})
 }

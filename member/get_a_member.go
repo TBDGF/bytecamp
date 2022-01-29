@@ -18,7 +18,7 @@ func GetMember(g *gin.RouterGroup, Db *sqlx.DB) {
 		err := Db.Select(&ret, "select * from userinfo where userid = ?", Request.UserID)
 		var response types.GetMemberResponse
 		if err != nil || len(ret) == 0 {
-			response.Code = 4
+			response.Code = types.UserNotExisted
 			response.Data = types.TMember{}
 			c.JSON(http.StatusBadRequest, response)
 			return
@@ -26,12 +26,12 @@ func GetMember(g *gin.RouterGroup, Db *sqlx.DB) {
 		var valid []string
 		err = Db.Select(&valid, "select name from users where name = ?", ret[0].Username)
 		if err != nil || len(valid) == 0 {
-			response.Code = 3
+			response.Code = types.UserHasDeleted
 			response.Data = types.TMember{}
 			c.JSON(http.StatusBadRequest, response)
 			return
 		}
-		response.Code = 0
+		response.Code = types.OK
 		response.Data = ret[0]
 		c.JSON(http.StatusOK, response)
 	})

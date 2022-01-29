@@ -30,6 +30,7 @@ func main() {
 	// 成员模块
 	{
 		member.GetMember(g, database)
+		member.Create(g, database)
 	}
 
 	// 排课模块
