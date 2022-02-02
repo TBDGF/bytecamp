@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"bytedance/config"
+	"bytedance/db"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,7 +10,7 @@ import (
 func Logout(c *gin.Context) {
 	// 删除 cookie
 	c.SetCookie("camp-session", "", -1, "/",
-		config.Host, false, true)
+		db.Host, false, true)
 	var response types.LogoutResponse
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)

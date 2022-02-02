@@ -1,22 +1,38 @@
 create database camp;
 
-# 成员登录表
-create table users
+# member
+create table member
 (
-    name varchar(20) primary key,
-    password varchar(20)
-)engine=innoDB;
+    member_id int auto_increment,
+    member_name varchar(32) not null,
+    member_nickname varchar(32) not null,
+    member_password varchar(32) not null,
+    member_type int not null,
+    constraint member_pk
+        primary key (member_id)
+);
 
-# 成员信息表
-create table userinfo
+# course
+create table course
 (
-    userid   int(64) primary key auto_imcrement,
-    username varchar(20),
-    nickname varchar(20),
-    usertype int
-)engine=innoDB;
+    course_id int auto_increment,
+    course_name varchar(32) not null,
+    course_available int not null,
+    constraint course_pk
+        primary key (course_id)
+);
+
+# course_schedule
+create table course_schedule
+(
+    schedule_id int auto_increment,
+    course_id int not null,
+    member_id int not null,
+    member_type int not null,
+    constraint course_schedule_pk
+        primary key (schedule_id)
+);
 
 # 系统内置管理员
-insert into users values('JudgeAdmin', 'JudgePassword2022')
-insert into userinfo(username, nickname, usertype) values('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022')
+INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022',1)
 

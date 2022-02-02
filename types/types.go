@@ -33,10 +33,10 @@ type ResponseMeta struct {
 }
 
 type TMember struct {
-	UserID   string
-	Nickname string
-	Username string
-	UserType UserType
+	UserID   string   `db:"member_id"`
+	Nickname string   `db:"member_nickname"`
+	Username string   `db:"member_name"`
+	UserType UserType `db:"member_type"`
 }
 
 type TCourse struct {
@@ -82,7 +82,7 @@ type CreateMemberResponse struct {
 // 获取成员信息
 
 type GetMemberRequest struct {
-	UserID string `form:"Userid"`
+	UserID string `form:"userid"`
 }
 
 // 如果用户已删除请返回已删除状态码，不存在请返回不存在状态码
@@ -95,8 +95,8 @@ type GetMemberResponse struct {
 // 批量获取成员信息
 
 type GetMemberListRequest struct {
-	Offset int `form:"offset" binding:"required"`
-	Limit  int `form:"limit" binding:"required"`
+	Offset int `form:"offset"`
+	Limit  int `form:"limit"`
 }
 
 type GetMemberListResponse struct {
@@ -109,8 +109,8 @@ type GetMemberListResponse struct {
 // 更新成员信息
 
 type UpdateMemberRequest struct {
-	UserID   string
-	Nickname string
+	UserID   string `form:"userid"`
+	Nickname string `form:"nickname"`
 }
 
 type UpdateMemberResponse struct {
@@ -121,7 +121,7 @@ type UpdateMemberResponse struct {
 // 成员删除后，该成员不能够被登录且不应该不可见，ID 不可复用
 
 type DeleteMemberRequest struct {
-	UserID string
+	UserID string `form:"userid"`
 }
 
 type DeleteMemberResponse struct {

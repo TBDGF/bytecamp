@@ -1,11 +1,12 @@
 package member
 
 import (
-	"bytedance/config"
+	"bytedance/db"
 	"bytedance/types"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func Return_paramInvalid(response *types.CreateMemberResponse, c *gin.Context) {
@@ -31,9 +32,32 @@ func Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	var usertype []types.UserType
-	config.NewDB().Select(&usertype, "select usertype from userinfo where userid = ?", cookie)
-	if usertype[0] != types.Admin {
+	var usertype types.UserType
+	//An error is returned if the result set is empty.
+	if err := db.NewDB().Get(&usertype, "select member_type from member where member_id=?", cookie); err != nil {
+		//获取目前的最大自增键
+		var maxID int
+		if err := db.NewDB().Get(&maxID, "select max(member_id) from member"); err != nil {
+			response.Code = types.UnknownError
+			response.Data.UserID = ""
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		//检查是否已删除
+		if intID, _ := strconv.Atoi(cookie); intID < maxID {
+			response.Code = types.UserHasDeleted
+			response.Data.UserID = ""
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		//如果不是已删除，则说明用户不存在
+		response.Code = types.UserNotExisted
+		response.Data.UserID = ""
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	if usertype != types.Admin {
 		response.Code = types.PermDenied
 		response.Data.UserID = ""
 		c.JSON(http.StatusBadRequest, response)
@@ -98,22 +122,21 @@ func Create(c *gin.Context) {
 	}
 
 	// --- 验证用户名是否存在, 错误返回UserHasExisted --- //
-	var count []int
-	config.NewDB().Select(&count, "select count(*) from userinfo where username = ?", request.Username)
-	fmt.Println("return count:", count[0])
-	if count[0] != 0 {
+	var count int
+	if err := db.NewDB().Get(&count, "select count(*) from member where member_name = ? limit 1", request.Username); err != nil {
+		return
+	}
+	fmt.Println("return count:", count)
+	if count != 0 {
 		response.Code = types.UserHasExisted
 		response.Data.UserID = ""
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	config.NewDB().Exec("insert into users(name, password) values(?, ?)", request.Username, request.Password)
-	config.NewDB().Exec("insert into userinfo(nickname, username, usertype) values(?, ?, ?)", request.Nickname, request.Username, request.UserType)
-	var id []string
-	config.NewDB().Select(&id, "select userid from userinfo where username = ?", request.Username)
+	result, _ := db.NewDB().Exec("INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES (?, ?, ?, ?);", request.Username, request.Nickname, request.Password, request.UserType)
+	userID, _ := result.LastInsertId()
 	response.Code = types.OK
-	response.Data.UserID = id[0]
+	response.Data.UserID = strconv.Itoa(int(userID))
 	c.JSON(http.StatusOK, response)
 
 }

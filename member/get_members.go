@@ -1,7 +1,7 @@
 package member
 
 import (
-	"bytedance/config"
+	"bytedance/db"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -18,8 +18,8 @@ func GetMemberList(c *gin.Context) {
 		return
 	}
 
-	config.NewDB().Select(&response.Data.MemberList,
-		"select * from userinfo where userid between ? and ?", request.Offset, request.Offset+request.Limit)
+	db.NewDB().Select(&response.Data.MemberList,
+		"select member_id,member_name,member_nickname,member_type from member where member_id >? limit ?", request.Offset, request.Limit)
 
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)

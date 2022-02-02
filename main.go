@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytedance/config"
+	"bytedance/db"
 	"bytedance/router"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -9,7 +9,7 @@ import (
 
 func main() {
 	r := gin.Default()
-	config.InitDB()          // 数据库
-	router.RegisterRouter(r) // 接口
+	db.InitDB()              // 数据库
+	router.RegisterRouter(r) // 路由
 	r.Run(":80")
 }

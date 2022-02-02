@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"bytedance/config"
+	"bytedance/db"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func Whoami(c *gin.Context) {
@@ -17,10 +18,10 @@ func Whoami(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	var info []types.TMember
 
-	config.NewDB().Select(&info, "select * from userinfo where userid=?", cookie)
-	response.Code = types.OK
-	response.Data = info[0]
+	intID, _ := strconv.Atoi(cookie)
+	ret, errNo := db.GetMemberByID(intID)
+	response.Code = errNo
+	response.Data = ret
 	c.JSON(http.StatusOK, response)
 }
