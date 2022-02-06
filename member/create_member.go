@@ -3,7 +3,6 @@ package member
 import (
 	"bytedance/db"
 	"bytedance/types"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -32,32 +31,16 @@ func Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	var usertype types.UserType
-	//An error is returned if the result set is empty.
-	if err := db.NewDB().Get(&usertype, "select member_type from member where member_id=?", cookie); err != nil {
-		//获取目前的最大自增键
-		var maxID int
-		if err := db.NewDB().Get(&maxID, "select max(member_id) from member"); err != nil {
-			response.Code = types.UnknownError
-			response.Data.UserID = ""
-			c.JSON(http.StatusBadRequest, response)
-			return
-		}
-		//检查是否已删除
-		if intID, _ := strconv.Atoi(cookie); intID < maxID {
-			response.Code = types.UserHasDeleted
-			response.Data.UserID = ""
-			c.JSON(http.StatusBadRequest, response)
-			return
-		}
-		//如果不是已删除，则说明用户不存在
-		response.Code = types.UserNotExisted
-		response.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, response)
+	intID, _ := strconv.Atoi(cookie)
+	member, errNo := db.GetMemberByID(intID)
+	if errNo != types.OK {
+		response.Data.UserID = member.UserID
+		response.Code = errNo
+		c.JSON(http.StatusOK, response)
 		return
 	}
 
-	if usertype != types.Admin {
+	if member.UserType != types.Admin {
 		response.Code = types.PermDenied
 		response.Data.UserID = ""
 		c.JSON(http.StatusBadRequest, response)
@@ -126,7 +109,6 @@ func Create(c *gin.Context) {
 	if err := db.NewDB().Get(&count, "select count(*) from member where member_name = ? limit 1", request.Username); err != nil {
 		return
 	}
-	fmt.Println("return count:", count)
 	if count != 0 {
 		response.Code = types.UserHasExisted
 		response.Data.UserID = ""

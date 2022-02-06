@@ -48,7 +48,7 @@ func Delete(c *gin.Context) {
 		return
 	}
 
-	db.NewDB().Exec("delete from member where member_id=?", intID)
+	db.NewDB().Exec("update member set has_deleted=1 where member_id=?", intID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 	return
