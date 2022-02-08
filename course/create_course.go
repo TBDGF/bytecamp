@@ -1,22 +1,23 @@
-package member
+package course
 
 import (
 	"bytedance/db"
 	"bytedance/types"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func Delete(c *gin.Context) {
-	var request types.DeleteMemberRequest
-	var response types.DeleteMemberResponse
+func Create(c *gin.Context) {
+	// 暂时设定只有系统管理员才有权限创建课程
+	var request types.CreateCourseRequest
+	var response types.CreateCourseResponse
 
 	if err := c.Bind(&request); err != nil {
-		fmt.Println(err)
+		response.Code = types.ParamInvalid
+		c.JSON(http.StatusBadRequest, response)
+		return
 	}
-
 	// -----验证操作权限 : 无权限返回 PermDenied ------ //
 	// 根据 cookie 获取当前用户权限
 	cookie, err := c.Cookie("camp-session")
@@ -38,20 +39,10 @@ func Delete(c *gin.Context) {
 		return
 	}
 
-	// 删除成员
-	intID, err = strconv.Atoi(request.UserID)
-	if err != nil {
-		response.Code = types.ParamInvalid
-		c.JSON(http.StatusBadRequest, response)
-		return
-	}
-	if _, errNo := db.GetMemberByID(intID); errNo != types.OK {
-		response.Code = errNo
-		c.JSON(http.StatusBadRequest, response)
-		return
-	}
-	db.NewDB().Exec("update member set is_deleted=1 where member_id=?", intID)
+	result, _ := db.NewDB().Exec("INSERT INTO camp.course (course_name, course_available) VALUES (?, ?);", request.Name, request.Cap)
+	CourseID, _ := result.LastInsertId()
 	response.Code = types.OK
+	response.Data.CourseID = strconv.Itoa(int(CourseID))
 	c.JSON(http.StatusOK, response)
-	return
+
 }

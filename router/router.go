@@ -24,12 +24,12 @@ func RegisterRouter(r *gin.Engine) {
 	g.GET("/auth/whoami", auth.Whoami)
 
 	// 排课
-	g.POST("/course/create")
-	g.GET("/course/get")
+	g.POST("/course/create", course.Create)
+	g.GET("/course/get", course.GetCourse)
 
-	g.POST("/teacher/bind_course")
-	g.POST("/teacher/unbind_course")
-	g.GET("/teacher/get_course")
+	g.POST("/teacher/bind_course", course.BindCourseTeacher)
+	g.POST("/teacher/unbind_course", course.UnBindCourseTeacher)
+	g.GET("/teacher/get_course", course.GetCourseTeacher)
 	g.POST("/course/schedule")
 
 	// 抢课
