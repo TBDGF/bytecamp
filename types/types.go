@@ -40,9 +40,9 @@ type TMember struct {
 }
 
 type TCourse struct {
-	CourseID  string
-	Name      string
-	TeacherID string
+	CourseID  string `db:"course_id"`
+	Name      string `db:"course_name"`
+	TeacherID string `db:"member_id"`
 }
 
 // -----------------------------------
@@ -174,8 +174,8 @@ type WhoAmIResponse struct {
 // 创建课程
 // Method: Post
 type CreateCourseRequest struct {
-	Name string
-	Cap  int
+	Name string `form:"course_name" binding:"required"`
+	Cap  int    `form:"course_available" binding:"required"`
 }
 
 type CreateCourseResponse struct {
@@ -188,7 +188,7 @@ type CreateCourseResponse struct {
 // 获取课程
 // Method: Get
 type GetCourseRequest struct {
-	CourseID string
+	CourseID string `form:"courseid"`
 }
 
 type GetCourseResponse struct {
@@ -201,8 +201,8 @@ type GetCourseResponse struct {
 // 注：这里的 teacherID 不需要做已落库校验
 // 一个老师可以绑定多个课程 , 不过，一个课程只能绑定在一个老师下面
 type BindCourseRequest struct {
-	CourseID  string
-	TeacherID string
+	CourseID  string `form:"course_id"`
+	TeacherID string `form:"member_id"`
 }
 
 type BindCourseResponse struct {
@@ -212,8 +212,8 @@ type BindCourseResponse struct {
 // 老师解绑课程
 // Method： Post
 type UnbindCourseRequest struct {
-	CourseID  string
-	TeacherID string
+	CourseID  string `form:"course_id"`
+	TeacherID string `form:"member_id"`
 }
 
 type UnbindCourseResponse struct {
@@ -223,13 +223,13 @@ type UnbindCourseResponse struct {
 // 获取老师下所有课程
 // Method：Get
 type GetTeacherCourseRequest struct {
-	TeacherID string
+	TeacherID string `form:"member_id"`
 }
 
 type GetTeacherCourseResponse struct {
 	Code ErrNo
 	Data struct {
-		CourseList []*TCourse
+		CourseList []*TCourse // 指针表示关联性，Tcourse变化，这个值也随之发生变化
 	}
 }
 
