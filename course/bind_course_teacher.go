@@ -3,94 +3,77 @@ package course
 import (
 	"bytedance/db"
 	"bytedance/types"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func Return_BindParamInvalid(response *types.BindCourseResponse, c *gin.Context) {
-	response.Code = types.ParamInvalid
-	c.JSON(http.StatusBadRequest, response)
-	return
-}
-func BindCourseTeacher(c *gin.Context) {
-	// 首先验证当前用户是否为教师，只有教师才有权限绑定课程
-	var CMrequest types.CreateMemberRequest
-	var CMresponse types.CreateMemberResponse
-	var BCrequest types.BindCourseRequest
-	var BCresponse types.BindCourseResponse
+//// 老师绑定课程
+//// Method： Post
+//// 注：这里的 teacherID 不需要做已落库校验
+//// 一个老师可以绑定多个课程 , 不过，一个课程只能绑定在一个老师下面
+//type BindCourseRequest struct {
+//	CourseID  string `form:"course_id"`
+//	TeacherID string `form:"member_id"`
+//}
+//
+//type BindCourseResponse struct {
+//	Code ErrNo
+//}
 
-	// 先检查参数是否合法
-	if err := c.Bind(&BCrequest); err != nil {
-		Return_BindParamInvalid(&BCresponse, c)
-		return
-	}
-	// -----验证操作权限 : 无权限返回 PermDenied ------ //
-	// 根据 cookie 获取当前用户权限
-	cookie, err := c.Cookie("camp-session")
-	fmt.Printf("%#v\n", cookie)
-	if err != nil {
-		BCresponse.Code = types.LoginRequired // cookie 过期，用户未登录
-		//CCresponse.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, BCresponse)
-		return
-	}
-	var usertype types.UserType
-	//An error is returned if the result set is empty.
-	if err := db.NewDB().Get(&usertype, "select member_type from member where member_id=?", cookie); err != nil {
-		//获取目前的最大自增键
-		var maxID int
-		if err := db.NewDB().Get(&maxID, "select max(member_id) from member"); err != nil {
-			CMresponse.Code = types.UnknownError
-			CMresponse.Data.UserID = ""
-			c.JSON(http.StatusBadRequest, CMresponse)
-			return
-		}
-		//检查是否已删除
-		if intID, _ := strconv.Atoi(cookie); intID < maxID {
-			CMresponse.Code = types.UserHasDeleted
-			CMresponse.Data.UserID = ""
-			c.JSON(http.StatusBadRequest, CMresponse)
-			return
-		}
-		//如果不是已删除，则说明用户不存在
-		CMresponse.Code = types.UserNotExisted
-		CMresponse.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, CMresponse)
-		return
-	}
-	if usertype != types.Teacher {
-		CMresponse.Code = types.PermDenied
-		CMresponse.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, CMresponse)
-		return
-	}
-	fmt.Printf("%#v\n", usertype)
-	// --- 验证用户名是否存在, 错误返回UserHasExisted --- //
-	var count int
-	if err := db.NewDB().Get(&count, "select count(*) from Member where member_name = ? limit 1", CMrequest.Username); err != nil {
-		return
-	}
-	fmt.Println("return count:", count)
-	if count != 0 {
-		CMresponse.Code = types.UserHasExisted
-		CMresponse.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, CMresponse)
-		return
-	}
-	// 通过了上面的验证，才能进行绑定课程。
+func BindCourseTeacher(c *gin.Context) {
 	var request types.BindCourseRequest
 	var response types.BindCourseResponse
-	//var response db.Ccc
+
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 	intCourseID, _ := strconv.Atoi(request.CourseID)
-	intTeacherID, _ := strconv.Atoi(request.TeacherID)
-	errNo := db.BindCourseTeacherByID(intCourseID, intTeacherID)
+
+	// -----验证操作权限 : 无权限返回 PermDenied ------ //
+	// 根据 cookie 获取当前用户权限
+	cookie, err := c.Cookie("camp-session")
+	if err != nil {
+		response.Code = types.LoginRequired // cookie 过期，用户未登录
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	intID, _ := strconv.Atoi(cookie)
+	requester, errNo := db.GetMemberByID(intID)
+	if errNo != types.OK {
+		response.Code = errNo
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if requester.UserType != types.Teacher {
+		response.Code = types.PermDenied
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	course, errNo := db.GetCourseByID(intCourseID)
+	if errNo != types.OK {
+		response.Code = errNo
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	//判断是否重复绑定
+	if course.TeacherID != "" {
+		response.Code = types.CourseHasBound
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	//这里绑定的是老师，所以member_type预定义为3
+	_, err = db.NewDB().Exec("INSERT INTO camp.course_schedule (course_id, member_id, member_type) VALUES (?, ?, ?);", request.CourseID, request.TeacherID, 3)
+	if err != nil {
+		errNo = types.UnknownError
+	} else {
+		errNo = types.OK
+	}
 	response.Code = errNo
 
 	c.JSON(http.StatusOK, response)

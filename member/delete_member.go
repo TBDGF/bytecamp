@@ -25,18 +25,21 @@ func Delete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	var usertype types.UserType
-	intCookie, _ := strconv.Atoi(cookie)
-	db.NewDB().Get(&usertype, "select member_type from member where member_id = ? limit 1", intCookie)
-
-	if usertype != types.Admin {
+	intID, _ := strconv.Atoi(cookie)
+	requester, errNo := db.GetMemberByID(intID)
+	if errNo != types.OK {
+		response.Code = errNo
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if requester.UserType != types.Admin {
 		response.Code = types.PermDenied
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	// 删除成员
-	intID, err := strconv.Atoi(request.UserID)
+	intID, err = strconv.Atoi(request.UserID)
 	if err != nil {
 		response.Code = types.ParamInvalid
 		c.JSON(http.StatusBadRequest, response)
@@ -47,8 +50,7 @@ func Delete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	db.NewDB().Exec("update member set has_deleted=1 where member_id=?", intID)
+	db.NewDB().Exec("update member set is_deleted=1 where member_id=?", intID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 	return

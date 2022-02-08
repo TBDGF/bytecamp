@@ -3,9 +3,9 @@ package course
 import (
 	"bytedance/db"
 	"bytedance/types"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 //// 获取老师下所有课程
@@ -26,16 +26,13 @@ func GetCourseTeacher(c *gin.Context) {
 	var request types.GetTeacherCourseRequest
 	var response types.GetTeacherCourseResponse
 
-	err := c.Bind(&request)
-	if err != nil {
+	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	db.NewDB().Select(&response.Data.CourseList,
-		"select course_schedule.member_id,course.course_name,course_schedule.course_id from course_schedule,course where course_schedule.course_id=course.course_id and course_schedule.member_id =?", request.TeacherID)
-	fmt.Printf("%#v\n", response.Data.CourseList)
+	intTeacherID, _ := strconv.Atoi(request.TeacherID)
+	db.NewDB().Select(&response.Data.CourseList, "select c.course_id,c.course_name,cs.member_id from course c natural join course_schedule cs where c.course_id=cs.course_id and cs.member_id = ? and cs.member_type=3", intTeacherID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 	return
