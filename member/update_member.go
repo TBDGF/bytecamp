@@ -28,7 +28,7 @@ func Update(c *gin.Context) {
 		return
 	}
 	var usertype types.UserType
-	db.NewDB().Get(&usertype, "select member_type from member where member_id = ?", cookie)
+	db.NewDB().Get(&usertype, "select member_type from member where member_id = ? limit 1", cookie)
 	if usertype != types.Admin {
 		response.Code = types.PermDenied
 		c.JSON(http.StatusBadRequest, response)
