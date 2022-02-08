@@ -2,6 +2,7 @@ package router
 
 import (
 	"bytedance/auth"
+	"bytedance/course"
 	"bytedance/member"
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +33,7 @@ func RegisterRouter(r *gin.Engine) {
 	g.POST("/course/schedule")
 
 	// 抢课
-	g.POST("/student/book_course")
+	g.POST("/student/book_course", course.BookCourse)
 	g.GET("/student/course")
 
 }
