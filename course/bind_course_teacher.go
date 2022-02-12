@@ -7,19 +7,6 @@ import (
 	"net/http"
 )
 
-//// 老师绑定课程
-//// Method： Post
-//// 注：这里的 teacherID 不需要做已落库校验
-//// 一个老师可以绑定多个课程 , 不过，一个课程只能绑定在一个老师下面
-//type BindCourseRequest struct {
-//	CourseID  string `form:"course_id"`
-//	TeacherID string `form:"member_id"`
-//}
-//
-//type BindCourseResponse struct {
-//	Code ErrNo
-//}
-
 func BindCourseTeacher(c *gin.Context) {
 	var request types.BindCourseRequest
 	var response types.BindCourseResponse
