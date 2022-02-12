@@ -30,10 +30,10 @@ func RegisterRouter(r *gin.Engine) {
 	g.POST("/teacher/bind_course", course.BindCourseTeacher)
 	g.POST("/teacher/unbind_course", course.UnBindCourseTeacher)
 	g.GET("/teacher/get_course", course.GetCourseTeacher)
-	g.POST("/course/schedule")
+	g.POST("/course/schedule", course.GetCourseSchedule)
 
 	// 抢课
-	g.POST("/student/book_course")
-	g.GET("/student/course")
+	g.POST("/student/book_course", course.BookCourse)
+	g.GET("/student/course", course.GetStudentCourse)
 
 }

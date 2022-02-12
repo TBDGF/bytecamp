@@ -10,7 +10,7 @@ var Db *sqlx.DB
 // 数据库连接参数
 const (
 	SQLUser     string = "root"
-	SQLPassword string = "1234"
+	SQLPassword string = "123456"
 	Host        string = "127.0.0.1"
 	port        string = "3306"
 	database    string = "camp"

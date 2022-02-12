@@ -33,16 +33,16 @@ type ResponseMeta struct {
 }
 
 type TMember struct {
-	UserID   string   `db:"member_id"`
-	Nickname string   `db:"member_nickname"`
-	Username string   `db:"member_name"`
-	UserType UserType `db:"member_type"`
+	UserID   string   `db:"member_id" json:"UserID"`
+	Nickname string   `db:"member_nickname" json:"Nickname"`
+	Username string   `db:"member_name" json:"Username"`
+	UserType UserType `db:"member_type" json:"UserType"`
 }
 
 type TCourse struct {
 	CourseID  string `db:"course_id"`
 	Name      string `db:"course_name"`
-	TeacherID string `db:"member_id"`
+	TeacherID string `db:"teacher_id"`
 }
 
 // -----------------------------------

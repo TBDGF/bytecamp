@@ -14,6 +14,13 @@ create table member
         primary key (member_id)
 );
 
+#member索引
+create index idx_member_name
+    on member (member_name);
+
+create index idx_is_deleted_id
+    on member (is_deleted,member_id);
+
 # course
 create table course
 (
@@ -24,23 +31,37 @@ create table course
         primary key (course_id)
 );
 
-# course_schedule
-create table course_schedule
+
+create table teacher_schedule
 (
     schedule_id int auto_increment,
+    teacher_id int not null,
     course_id int not null,
-    member_id int not null,
-    member_type int not null,
-    constraint course_schedule_pk
+    constraint teacher_schedule_pk
         primary key (schedule_id)
 );
 
+create index idx_course_id
+    on teacher_schedule (course_id);
+
+create index idx_teacher_id
+    on teacher_schedule (teacher_id);
+
+create table student_schedule
+(
+    schedule_id int auto_increment,
+    student_id int not null,
+    course_id int not null,
+    constraint student_schedule_pk
+        primary key (schedule_id)
+);
+
+create index idx_course_id
+    on student_schedule (course_id);
+
+create index idx_student_id
+    on student_schedule (student_id);
+
+
 # 系统内置管理员
 INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022',1);
-
-#member索引
-create index idx_member_name
-    on member (member_name);
-
-create index idx_is_deleted_id
-    on member (is_deleted,member_id);

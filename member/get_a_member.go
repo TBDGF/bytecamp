@@ -5,7 +5,6 @@ import (
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 func GetMember(c *gin.Context) {
@@ -17,8 +16,7 @@ func GetMember(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	intID, _ := strconv.Atoi(request.UserID)
-	ret, errNo := db.GetMemberByID(intID)
+	ret, errNo := db.GetMemberByID(request.UserID)
 	response.Code = errNo
 	response.Data = ret
 	c.JSON(http.StatusOK, response)

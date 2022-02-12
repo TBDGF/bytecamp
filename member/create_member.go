@@ -31,8 +31,7 @@ func Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	intID, _ := strconv.Atoi(cookie)
-	member, errNo := db.GetMemberByID(intID)
+	member, errNo := db.GetMemberByID(cookie)
 	if errNo != types.OK {
 		response.Data.UserID = member.UserID
 		response.Code = errNo
