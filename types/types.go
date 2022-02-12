@@ -42,7 +42,7 @@ type TMember struct {
 type TCourse struct {
 	CourseID  string `db:"course_id"`
 	Name      string `db:"course_name"`
-	TeacherID string `db:"member_id"`
+	TeacherID string `db:"teacher_id"`
 }
 
 // -----------------------------------

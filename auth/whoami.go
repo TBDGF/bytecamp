@@ -5,7 +5,6 @@ import (
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 func Whoami(c *gin.Context) {
@@ -19,8 +18,7 @@ func Whoami(c *gin.Context) {
 		return
 	}
 
-	intID, _ := strconv.Atoi(cookie)
-	ret, errNo := db.GetMemberByID(intID)
+	ret, errNo := db.GetMemberByID(cookie)
 	response.Code = errNo
 	response.Data = ret
 	c.JSON(http.StatusOK, response)

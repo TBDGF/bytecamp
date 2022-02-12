@@ -5,7 +5,6 @@ import (
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 //// 获取老师下所有课程
@@ -31,8 +30,7 @@ func GetCourseTeacher(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	intTeacherID, _ := strconv.Atoi(request.TeacherID)
-	db.NewDB().Select(&response.Data.CourseList, "select c.course_id,c.course_name,cs.member_id from course c natural join course_schedule cs where c.course_id=cs.course_id and cs.member_id = ? and cs.member_type=3", intTeacherID)
+	db.NewDB().Select(&response.Data.CourseList, "select c.course_id, c.course_name, ts.teacher_id from course c left join teacher_schedule ts on c.course_id = ts.course_id where teacher_id = ?;", request.TeacherID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 	return

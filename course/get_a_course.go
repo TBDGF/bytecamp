@@ -5,7 +5,6 @@ import (
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 func GetCourse(c *gin.Context) {
@@ -17,8 +16,7 @@ func GetCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	intID, _ := strconv.Atoi(request.CourseID)
-	ret, errNo := db.GetCourseByID(intID)
+	ret, errNo := db.GetCourseByID(request.CourseID)
 	response.Code = errNo
 	response.Data = ret
 
