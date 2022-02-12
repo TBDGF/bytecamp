@@ -2,6 +2,7 @@ package member
 
 import (
 	"bytedance/db"
+	"bytedance/redis_server"
 	"bytedance/types"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,7 @@ func Delete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
+	redis_server.DeleteMemberByID(request.UserID)
 	db.NewDB().Exec("update member set is_deleted=1 where member_id=?", request.UserID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)

@@ -2,6 +2,7 @@ package member
 
 import (
 	"bytedance/db"
+	"bytedance/redis_server"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -34,7 +35,7 @@ func Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-
+	redis_server.DeleteMemberByID(request.UserID)
 	db.NewDB().Exec("update member set member_nickname = ? where member_id = ?", request.Nickname, request.UserID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)

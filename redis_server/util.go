@@ -22,11 +22,15 @@ func GetMemberByID(memberID string) (types.TMember, types.ErrNo) {
 		jsonString, _ := json.Marshal(member)
 		//加入缓存
 		NewClient().Set(GetKeyOfMember(memberID), jsonString, 0)
-		return member, errNo
+		return member, types.OK
 	}
 	var member types.TMember
 	json.Unmarshal([]byte(result), &member)
 	return member, types.OK
+}
+
+func DeleteMemberByID(memberID string) {
+	NewClient().Del(GetKeyOfMember(memberID))
 }
 
 func GetKeyOfCourseAvail(courseID string) string {
