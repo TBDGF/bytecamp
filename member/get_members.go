@@ -7,18 +7,6 @@ import (
 	"net/http"
 )
 
-//type GetMemberListRequest struct {
-//	Offset int `form:"offset"`
-//	Limit  int `form:"limit"`
-//}
-//
-//type GetMemberListResponse struct {
-//	Code ErrNo
-//	Data struct {
-//		MemberList []TMember
-//	}
-//}
-
 func GetMemberList(c *gin.Context) {
 	var request types.GetMemberListRequest
 	var response types.GetMemberListResponse

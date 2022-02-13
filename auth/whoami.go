@@ -8,12 +8,11 @@ import (
 )
 
 func Whoami(c *gin.Context) {
+	var response types.WhoAmIResponse
 	// 获取 cookie
 	cookie, err := c.Cookie("camp-session")
-	var response types.WhoAmIResponse
 	if err != nil {
 		response.Code = types.LoginRequired
-		response.Data = types.TMember{"", "", "", 0}
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
