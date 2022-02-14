@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 var Db *sqlx.DB
@@ -21,10 +22,10 @@ func InitDB() {
 	Db, err = sqlx.Connect("mysql",
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", SQLUser, SQLPassword, Host, port, database))
 	if err != nil {
-		fmt.Println("Init database failed:", err)
+		log.Println("Init database failed:", err)
 		return
 	}
-	fmt.Println("Successfully init database.")
+	log.Println("Successfully init database.")
 }
 
 func NewDB() *sqlx.DB {

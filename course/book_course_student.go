@@ -53,7 +53,7 @@ func BookCourse(c *gin.Context) {
 		return
 	}
 
-	//更新缓存
+	//redis课程容量自减
 	availableInt64, err := redis_server.NewClient().Decr(redis_server.GetKeyOfCourseAvail(request.CourseID)).Result()
 	avail = int(availableInt64)
 	if err != nil {
@@ -61,6 +61,9 @@ func BookCourse(c *gin.Context) {
 		return
 	}
 	success(&response, c)
+
+	//redis添加关系
+	redis_server.NewClient().Set(redis_server.GetKeyOfStudentSchedule(request.StudentID, request.CourseID), 1, 0)
 
 	// --- 更新数据库 --- //
 	db.NewDB().Exec("update course set course_available = ? where course_id = ?", avail, request.CourseID)
