@@ -1,17 +1,16 @@
+drop database if exists camp;
 create database camp;
 use camp;
 
 # member
 create table member
 (
-    member_id int auto_increment,
+    member_id int(64) auto_increment primary key,
     member_name varchar(32) not null,
     member_nickname varchar(32) not null,
     member_password varchar(32) not null,
     member_type int not null,
-    is_deleted int default 0 not null,
-    constraint member_pk
-        primary key (member_id)
+    is_deleted boolean default false not null
 );
 
 #member索引

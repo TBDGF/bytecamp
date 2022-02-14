@@ -3,9 +3,7 @@ package member
 import (
 	"bytedance/auth"
 	"bytedance/db"
-	"bytedance/redis_server"
 	"bytedance/types"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,7 +13,9 @@ func Delete(c *gin.Context) {
 	var response types.DeleteMemberResponse
 
 	if err := c.Bind(&request); err != nil {
-		fmt.Println(err)
+		response.Code = types.UnknownError
+		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 
 	//删除cookie
@@ -27,7 +27,7 @@ func Delete(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	redis_server.DeleteMemberByID(request.UserID)
+	//redis_server.DeleteMemberByID(request.UserID)
 	db.NewDB().Exec("update member set is_deleted=1 where member_id=?", request.UserID)
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
