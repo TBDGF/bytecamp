@@ -1,6 +1,7 @@
 package member
 
 import (
+	"bytedance/auth"
 	"bytedance/db"
 	"bytedance/redis_server"
 	"bytedance/types"
@@ -16,6 +17,9 @@ func Delete(c *gin.Context) {
 	if err := c.Bind(&request); err != nil {
 		fmt.Println(err)
 	}
+
+	//删除cookie
+	auth.Logout(c)
 
 	// 删除成员
 	if _, errNo := db.GetMemberByID(request.UserID); errNo != types.OK {

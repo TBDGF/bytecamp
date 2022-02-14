@@ -2,7 +2,9 @@ package member
 
 import (
 	"bytedance/db"
+	"bytedance/redis_server"
 	"bytedance/types"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -34,15 +36,15 @@ func Create(c *gin.Context) {
 		fail(&response, c, err)
 		return
 	}
-	member, errNo := db.GetMemberByID(cookie)
+	requester, errNo := db.GetMemberByID(cookie)
 	if errNo != types.OK {
-		response.Data.UserID = member.UserID
+		response.Data.UserID = requester.UserID
 		response.Code = errNo
 		fail(&response, c)
 		return
 	}
 
-	if member.UserType != types.Admin {
+	if requester.UserType != types.Admin {
 		response.Code = types.PermDenied
 		fail(&response, c)
 		return
@@ -123,10 +125,18 @@ func Create(c *gin.Context) {
 		fail(&response, c)
 		return
 	}
+
+	//添加到数据库
 	result, _ := db.NewDB().Exec("INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES (?, ?, ?, ?);", request.Username, request.Nickname, request.Password, request.UserType)
 	userID, _ := result.LastInsertId()
+
 	response.Code = types.OK
 	response.Data.UserID = strconv.Itoa(int(userID))
+	//添加到redis
+	member := types.TMember{response.Data.UserID, request.Nickname, request.Username, request.UserType}
+	jsonString, _ := json.Marshal(member)
+	redis_server.NewClient().Set(redis_server.GetKeyOfMember(response.Data.UserID), jsonString, 0)
+
 	c.JSON(http.StatusOK, response)
 
 }

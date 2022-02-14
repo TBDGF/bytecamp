@@ -1,3 +1,5 @@
+//no redis
+//sql optimized
 package course
 
 import (

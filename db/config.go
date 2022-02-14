@@ -18,9 +18,8 @@ const (
 
 func InitDB() {
 	var err error
-	Db, err = sqlx.Open("mysql",
+	Db, err = sqlx.Connect("mysql",
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", SQLUser, SQLPassword, Host, port, database))
-
 	if err != nil {
 		fmt.Println("Init database failed:", err)
 		return

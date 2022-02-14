@@ -1,3 +1,5 @@
+//redis
+//sql not optimized
 package course
 
 import (
@@ -34,15 +36,7 @@ func BookCourse(c *gin.Context) {
 	}
 
 	// --- 验证是否课程已绑定过, 错误返回StudentHasCourse --- //
-	var count int
-	if err := db.NewDB().Get(&count,
-		"select count(*) from student_schedule where student_id = ? AND course_id = ? limit 1",
-		request.StudentID, request.CourseID); err != nil {
-		response.Code = types.UnknownError
-		c.JSON(http.StatusOK, response)
-		return
-	}
-	if count != 0 {
+	if result, _ := redis_server.GetStudentSchedule(request.StudentID, request.CourseID); result == true {
 		fail(&response, types.StudentHasCourse, c)
 		return
 	}

@@ -1,7 +1,7 @@
 package member
 
 import (
-	"bytedance/db"
+	"bytedance/redis_server"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,7 +16,7 @@ func GetMember(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	ret, errNo := db.GetMemberByID(request.UserID)
+	ret, errNo := redis_server.GetMemberByID(request.UserID)
 	response.Code = errNo
 	response.Data = ret
 	c.JSON(http.StatusOK, response)

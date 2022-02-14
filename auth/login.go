@@ -1,3 +1,5 @@
+//no redis
+//sql optimized
 package auth
 
 import (
@@ -34,7 +36,7 @@ func Login(c *gin.Context) {
 	db.NewDB().Get(&id, "select member_id from member where member_name=? limit 1", request.Username)
 	response.Data.UserID = strconv.Itoa(id)
 	// 设置 cookie
-	c.SetCookie("camp-session", strconv.Itoa(id), 3000, "/",
-		"127.0.0.1", false, true)
+	c.SetCookie("camp-session", strconv.Itoa(id), 3600, "/",
+		"", false, true)
 	c.JSON(http.StatusOK, response)
 }
