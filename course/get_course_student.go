@@ -13,7 +13,7 @@ func GetStudentCourse(c *gin.Context) {
 	var response types.GetStudentCourseResponse
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 	db.NewDB().Select(&response.Data.CourseList,
@@ -22,7 +22,7 @@ func GetStudentCourse(c *gin.Context) {
 	//结果为空
 	if len(response.Data.CourseList) == 0 {
 		response.Code = types.StudentHasNoCourse
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 

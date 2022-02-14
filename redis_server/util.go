@@ -4,6 +4,7 @@ import (
 	"bytedance/db"
 	"bytedance/types"
 	"encoding/json"
+	"log"
 	"strconv"
 )
 
@@ -24,6 +25,7 @@ func GetMemberByID(memberID string) (types.TMember, types.ErrNo) {
 		NewClient().Set(GetKeyOfMember(memberID), jsonString, 0)
 		return member, types.OK
 	}
+	log.Println("GetMemberByID in redis")
 	var member types.TMember
 	json.Unmarshal([]byte(result), &member)
 	return member, types.OK
@@ -49,6 +51,33 @@ func GetCourseAvailByID(courseID string) (int, types.ErrNo) {
 		NewClient().Set(GetKeyOfCourseAvail(courseID), avail, 0)
 		return avail, errNo
 	}
+	log.Println("GetCourseAvailByID in redis")
 	avail, _ := strconv.Atoi(result)
 	return avail, types.OK
+}
+
+func GetKeyOfStudentSchedule(studentID string, courseID string) string {
+	return "camp:student:" + studentID + ":course:" + courseID + ":int"
+}
+
+func GetStudentSchedule(studentID string, courseID string) (bool, types.ErrNo) {
+	_, err := NewClient().Get(GetKeyOfStudentSchedule(studentID, courseID)).Result()
+	//缓存无结果，查询数据库
+	if err != nil {
+		var count int
+		if err := db.NewDB().Get(&count,
+			"select count(*) from student_schedule where student_id = ? AND course_id = ? limit 1",
+			studentID, courseID); err != nil {
+			return false, types.UnknownError
+		}
+		//判断是否不存在
+		if count == 0 {
+			return false, types.StudentHasNoCourse
+		}
+		//加入缓存
+		NewClient().Set(GetKeyOfStudentSchedule(studentID, courseID), 1, 0)
+		return true, types.OK
+	}
+	log.Println("GetStudentSchedule in redis")
+	return true, types.OK
 }
