@@ -4,14 +4,17 @@ import (
 	"bytedance/db"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 )
 
-func Return_paramInvalid(response *types.CreateMemberResponse, c *gin.Context) {
-	response.Code = types.ParamInvalid
-	response.Data.UserID = ""
-	c.JSON(http.StatusBadRequest, response)
+func fail(response *types.CreateMemberResponse, c *gin.Context, err ...interface{}) {
+	if len(err) > 0 {
+		log.Println("error:", err[0])
+	}
+	log.Println("response:", response)
+	c.JSON(http.StatusOK, response)
 	return
 }
 
@@ -19,7 +22,8 @@ func Create(c *gin.Context) {
 	var request types.CreateMemberRequest
 	var response types.CreateMemberResponse
 	if err := c.Bind(&request); err != nil {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c, err)
 		return
 	}
 	// -----验证操作权限 : 无权限返回 PermDenied ------ //
@@ -27,22 +31,20 @@ func Create(c *gin.Context) {
 	cookie, err := c.Cookie("camp-session")
 	if err != nil {
 		response.Code = types.LoginRequired // cookie 过期，用户未登录
-		response.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, response)
+		fail(&response, c, err)
 		return
 	}
 	member, errNo := db.GetMemberByID(cookie)
 	if errNo != types.OK {
 		response.Data.UserID = member.UserID
 		response.Code = errNo
-		c.JSON(http.StatusOK, response)
+		fail(&response, c)
 		return
 	}
 
 	if member.UserType != types.Admin {
 		response.Code = types.PermDenied
-		response.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, response)
+		fail(&response, c)
 		return
 	}
 
@@ -50,27 +52,31 @@ func Create(c *gin.Context) {
 
 	// ---- 验证用户昵称: 不小于 4 位，不超过 20 位 ----
 	if len(request.Nickname) < 4 || len(request.Nickname) > 20 {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c)
 		return
 	}
 
 	// ---- 验证用户名 ----
 	if len(request.Username) < 8 || len(request.Username) > 20 {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c)
 		return
 	}
 
 	for i := 0; i < len(request.Username); i += 1 {
 		char := request.Username[i]
 		if char < 'A' || char > 'z' || char > 'Z' && char < 'a' {
-			Return_paramInvalid(&response, c)
+			response.Code = types.ParamInvalid
+			fail(&response, c)
 			return
 		}
 	}
 
 	// ---- 验证密码 ----
 	if len(request.Password) < 8 || len(request.Password) > 20 {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c)
 		return
 	}
 
@@ -87,19 +93,22 @@ func Create(c *gin.Context) {
 		} else if char >= 'A' && char <= 'Z' {
 			HasBigCase = true
 		} else {
-			Return_paramInvalid(&response, c)
+			response.Code = types.ParamInvalid
+			fail(&response, c)
 			return
 		}
 	}
 
 	if !HasNum || !HasLowCase || !HasBigCase {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c)
 		return
 	}
 
 	// ---- 验证用户类型 ----
 	if request.UserType != types.Admin && request.UserType != types.Student && request.UserType != types.Teacher {
-		Return_paramInvalid(&response, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c)
 		return
 	}
 
@@ -111,7 +120,7 @@ func Create(c *gin.Context) {
 	if count != 0 {
 		response.Code = types.UserHasExisted
 		response.Data.UserID = ""
-		c.JSON(http.StatusBadRequest, response)
+		fail(&response, c)
 		return
 	}
 	result, _ := db.NewDB().Exec("INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES (?, ?, ?, ?);", request.Username, request.Nickname, request.Password, request.UserType)

@@ -13,7 +13,7 @@ func GetMember(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 	ret, errNo := db.GetMemberByID(request.UserID)

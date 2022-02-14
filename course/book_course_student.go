@@ -14,7 +14,7 @@ func success(response *types.BookCourseResponse, c *gin.Context) {
 }
 func fail(response *types.BookCourseResponse, code types.ErrNo, c *gin.Context) {
 	response.Code = code
-	c.JSON(http.StatusBadRequest, response)
+	c.JSON(http.StatusOK, response)
 }
 
 func BookCourse(c *gin.Context) {
@@ -39,7 +39,7 @@ func BookCourse(c *gin.Context) {
 		"select count(*) from student_schedule where student_id = ? AND course_id = ? limit 1",
 		request.StudentID, request.CourseID); err != nil {
 		response.Code = types.UnknownError
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 	if count != 0 {

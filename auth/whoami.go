@@ -14,7 +14,7 @@ func Whoami(c *gin.Context) {
 	if err != nil {
 		response.Code = types.LoginRequired
 		response.Data = types.TMember{"", "", "", 0}
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 

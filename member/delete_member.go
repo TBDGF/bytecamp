@@ -20,7 +20,7 @@ func Delete(c *gin.Context) {
 	// 删除成员
 	if _, errNo := db.GetMemberByID(request.UserID); errNo != types.OK {
 		response.Code = errNo
-		c.JSON(http.StatusBadRequest, response)
+		c.JSON(http.StatusOK, response)
 		return
 	}
 	redis_server.DeleteMemberByID(request.UserID)
