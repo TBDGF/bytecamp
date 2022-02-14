@@ -11,6 +11,8 @@ import (
 func Logout(c *gin.Context) {
 	var response types.LogoutResponse
 
+	//重复登出返回成功
+
 	// 删除 cookie
 	c.SetCookie("camp-session", "", -1, "/",
 		"", false, true)
