@@ -265,3 +265,11 @@ type GetStudentCourseResponse struct {
 		CourseList []TCourse
 	}
 }
+
+//--------- add ----------
+
+// PsdAndId : use in login
+type PsdAndId struct {
+	Psd string `db:"member_password"`
+	Id  string `db:"member_id"`
+}
