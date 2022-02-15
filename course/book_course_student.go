@@ -14,16 +14,13 @@ func success(response *types.BookCourseResponse, c *gin.Context) {
 	response.Code = types.OK
 	c.JSON(http.StatusOK, response)
 }
-func fail(response *types.BookCourseResponse, code types.ErrNo, c *gin.Context) {
-	response.Code = code
-	c.JSON(http.StatusOK, response)
-}
 
 func BookCourse(c *gin.Context) {
 	var request types.BookCourseRequest
 	var response types.BookCourseResponse
 	if err := c.Bind(&request); err != nil {
-		fail(&response, types.ParamInvalid, c)
+		response.Code = types.ParamInvalid
+		fail(&response, c, err)
 		return
 	}
 
@@ -31,25 +28,29 @@ func BookCourse(c *gin.Context) {
 	//redis
 	ret, errNo := redis_server.GetMemberByID(request.StudentID)
 	if errNo == types.UserNotExisted || errNo == types.UserHasDeleted || ret.UserType != types.Student {
-		fail(&response, types.StudentNotExisted, c)
+		response.Code = types.StudentNotExisted
+		fail(&response, c)
 		return
 	}
 
 	// --- 验证是否课程已绑定过, 错误返回StudentHasCourse --- //
 	if result, _ := redis_server.GetStudentSchedule(request.StudentID, request.CourseID); result == true {
-		fail(&response, types.StudentHasCourse, c)
+		response.Code = types.StudentHasCourse
+		fail(&response, c)
 		return
 	}
 
 	// --- 验证课程是否存在与课程容量是否充足, 错误返回CourseNotExisted或CourseNotAvailable --- //
 	avail, errNo := redis_server.GetCourseAvailByID(request.CourseID)
 	if errNo != types.OK {
-		fail(&response, errNo, c)
+		response.Code = errNo
+		fail(&response, c)
 		return
 	}
 
 	if avail <= 0 { // 容量不足
-		fail(&response, types.CourseNotAvailable, c)
+		response.Code = types.CourseNotAvailable
+		fail(&response, c)
 		return
 	}
 
@@ -57,7 +58,8 @@ func BookCourse(c *gin.Context) {
 	availableInt64, err := redis_server.NewClient().Decr(redis_server.GetKeyOfCourseAvail(request.CourseID)).Result()
 	avail = int(availableInt64)
 	if err != nil {
-		fail(&response, types.UnknownError, c)
+		response.Code = types.UnknownError
+		fail(&response, c, err)
 		return
 	}
 	success(&response, c)

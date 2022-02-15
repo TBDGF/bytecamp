@@ -14,7 +14,7 @@ func GetMemberList(c *gin.Context) {
 	err := c.Bind(&request)
 	if err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusOK, response)
+		fail(response, c, err)
 		return
 	}
 

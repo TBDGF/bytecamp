@@ -14,7 +14,7 @@ func GetCourse(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusOK, response)
+		fail(&response, c, err)
 		return
 	}
 	ret, errNo := db.GetCourseByID(request.CourseID)

@@ -15,7 +15,7 @@ func Delete(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.UnknownError
-		c.JSON(http.StatusOK, response)
+		fail(response, c, err)
 		return
 	}
 
@@ -25,7 +25,7 @@ func Delete(c *gin.Context) {
 	// 删除成员
 	if _, errNo := db.GetMemberByID(request.UserID); errNo != types.OK {
 		response.Code = errNo
-		c.JSON(http.StatusOK, response)
+		fail(response, c)
 		return
 	}
 	redis_server.DeleteMemberByID(request.UserID)
