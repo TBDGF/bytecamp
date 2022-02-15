@@ -22,8 +22,8 @@ func TestTxDecr(t *testing.T) {
 	db.InitDB()
 	InitRedis()
 
-	studentAmount := 8000
-	courseAmount := 100
+	studentAmount := 2000
+	courseAmount := 11
 	var wg sync.WaitGroup
 	wg.Add(studentAmount)
 
