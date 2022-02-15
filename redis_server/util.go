@@ -4,6 +4,8 @@ import (
 	"bytedance/db"
 	"bytedance/types"
 	"encoding/json"
+	"errors"
+	"github.com/go-redis/redis"
 	"log"
 	"strconv"
 )
@@ -80,4 +82,33 @@ func GetStudentSchedule(studentID string, courseID string) (bool, types.ErrNo) {
 	}
 	log.Println("GetStudentSchedule in redis")
 	return true, types.OK
+}
+
+func TxDecr(key string) func(tx *redis.Tx) error {
+	txf := func(tx *redis.Tx) error {
+		n, err := tx.Get(key).Int()
+
+		if err == redis.Nil {
+			return errors.New("CourseNotExisted")
+		}
+		if err != nil && err != redis.Nil {
+			return err
+		}
+
+		if n == 0 {
+			return errors.New("CourseNotAvailable")
+		}
+
+		// actual opperation (local in optimistic lock)
+		n = n - 1
+
+		// runs only if the watched keys remain unchanged
+		_, err = tx.TxPipelined(func(pipe redis.Pipeliner) error {
+			// pipe handles the error case
+			pipe.Set(key, n, 0)
+			return nil
+		})
+		return err
+	}
+	return txf
 }
