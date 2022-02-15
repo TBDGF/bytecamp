@@ -15,7 +15,7 @@ func Whoami(c *gin.Context) {
 	var response types.WhoAmIResponse
 	if err != nil {
 		response.Code = types.LoginRequired
-		c.JSON(http.StatusOK, response)
+		fail(&response, c, err)
 		return
 	}
 

@@ -7,9 +7,19 @@ import (
 	"bytedance/redis_server"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 )
+
+func fail(response interface{}, c *gin.Context, err ...interface{}) {
+	if len(err) > 0 {
+		log.Println("error:", err[0])
+	}
+	log.Println("error response:", response)
+	c.JSON(http.StatusOK, response)
+	return
+}
 
 func Create(c *gin.Context) {
 	var request types.CreateCourseRequest
@@ -17,7 +27,7 @@ func Create(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusOK, response)
+		fail(&response, c, err)
 		return
 	}
 

@@ -11,11 +11,11 @@ import (
 	"strconv"
 )
 
-func fail(response *types.CreateMemberResponse, c *gin.Context, err ...interface{}) {
+func fail(response interface{}, c *gin.Context, err ...interface{}) {
 	if len(err) > 0 {
 		log.Println("error:", err[0])
 	}
-	log.Println("response:", response)
+	log.Println("error response:", response)
 	c.JSON(http.StatusOK, response)
 	return
 }

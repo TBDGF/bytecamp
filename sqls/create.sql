@@ -63,6 +63,9 @@ create index idx_course_id
 create index idx_student_id
     on student_schedule (student_id);
 
+create unique index uni_idx_student_course
+    on student_schedule (student_id,course_id);
+
 
 # 系统内置管理员
 INSERT INTO camp.member (member_name, member_nickname, member_password, member_type) VALUES('JudgeAdmin', 'JudgeAdmin', 'JudgePassword2022',1);
