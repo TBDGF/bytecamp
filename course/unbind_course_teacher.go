@@ -14,7 +14,7 @@ func UnBindCourseTeacher(c *gin.Context) {
 	// 先检查参数是否合法
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		c.JSON(http.StatusBadRequest, response)
+		failFmt(&response, c, err)
 		return
 	}
 

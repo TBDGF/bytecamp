@@ -5,12 +5,14 @@ use camp;
 # member
 create table member
 (
-    member_id int(64) auto_increment primary key,
+    member_id int auto_increment,
     member_name varchar(32) not null,
     member_nickname varchar(32) not null,
     member_password varchar(32) not null,
     member_type int not null,
-    is_deleted boolean default false not null
+    is_deleted int default 0 not null,
+    constraint member_pk
+        primary key (member_id)
 );
 
 #member索引
@@ -46,6 +48,9 @@ create index idx_course_id
 create index idx_teacher_id
     on teacher_schedule (teacher_id);
 
+create unique index uni_idx_teacher_course
+    on teacher_schedule (teacher_id,course_id);
+
 create table student_schedule
 (
     schedule_id int auto_increment,
@@ -60,6 +65,9 @@ create index idx_course_id
 
 create index idx_student_id
     on student_schedule (student_id);
+
+create unique index uni_idx_student_course
+    on student_schedule (student_id,course_id);
 
 
 # 系统内置管理员

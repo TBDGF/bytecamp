@@ -1,23 +1,25 @@
+//redis
+//no sql
 package auth
 
 import (
-	"bytedance/db"
+	"bytedance/redis_server"
 	"bytedance/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func Whoami(c *gin.Context) {
-	var response types.WhoAmIResponse
 	// 获取 cookie
 	cookie, err := c.Cookie("camp-session")
+	var response types.WhoAmIResponse
 	if err != nil {
 		response.Code = types.LoginRequired
-		c.JSON(http.StatusBadRequest, response)
+		failFmt(&response, c, err)
 		return
 	}
 
-	ret, errNo := db.GetMemberByID(cookie)
+	ret, errNo := redis_server.GetMemberByID(cookie)
 	response.Code = errNo
 	response.Data = ret
 	c.JSON(http.StatusOK, response)

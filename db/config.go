@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 var Db *sqlx.DB
@@ -16,18 +17,19 @@ const (
 	database    string = "camp"
 )
 
+// InitDB 初始化数据库连接
 func InitDB() {
 	var err error
-	Db, err = sqlx.Open("mysql",
+	Db, err = sqlx.Connect("mysql",
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", SQLUser, SQLPassword, Host, port, database))
-
 	if err != nil {
-		fmt.Println("Init database failed:", err)
+		log.Println("Init database failed:", err)
 		return
 	}
-	fmt.Println("Successfully init database.")
+	log.Println("Successfully init database.")
 }
 
+// NewDB 其他模块调用此方法以获取连接
 func NewDB() *sqlx.DB {
 	return Db
 }
