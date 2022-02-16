@@ -13,14 +13,14 @@ func GetMember(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(response, c, err)
+		failFmt(response, c, err)
 		return
 	}
 	ret, errNo := redis_server.GetMemberByID(request.UserID)
 	response.Code = errNo
 	response.Data = ret
 	if errNo != types.OK {
-		fail(response, c)
+		failFmt(response, c)
 	}
 	c.JSON(http.StatusOK, response)
 }

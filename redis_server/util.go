@@ -14,6 +14,7 @@ func GetKeyOfMember(memberID string) string {
 	return "camp:member:" + memberID + ":json"
 }
 
+// GetMemberByID ErrNo返回OK/UserNotExisted/UserHasDeleted
 func GetMemberByID(memberID string) (types.TMember, types.ErrNo) {
 	result, err := NewClient().Get(GetKeyOfMember(memberID)).Result()
 	//缓存无结果，查询数据库

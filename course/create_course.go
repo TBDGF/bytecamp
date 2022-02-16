@@ -6,13 +6,23 @@ import (
 	"bytedance/db"
 	"bytedance/redis_server"
 	"bytedance/types"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-func fail(response interface{}, c *gin.Context, err ...interface{}) {
+func failFmt(response interface{}, c *gin.Context, err ...interface{}) {
+	if len(err) > 0 {
+		fmt.Println("error:", err[0])
+	}
+	fmt.Println("error response:", response)
+	c.JSON(http.StatusOK, response)
+	return
+}
+
+func failLog(response interface{}, c *gin.Context, err ...interface{}) {
 	if len(err) > 0 {
 		log.Println("error:", err[0])
 	}
@@ -27,7 +37,7 @@ func Create(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 

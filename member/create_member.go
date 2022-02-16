@@ -5,17 +5,17 @@ import (
 	"bytedance/redis_server"
 	"bytedance/types"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func fail(response interface{}, c *gin.Context, err ...interface{}) {
+func failFmt(response interface{}, c *gin.Context, err ...interface{}) {
 	if len(err) > 0 {
-		log.Println("error:", err[0])
+		fmt.Println("error:", err[0])
 	}
-	log.Println("error response:", response)
+	fmt.Println("error response:", response)
 	c.JSON(http.StatusOK, response)
 	return
 }
@@ -25,7 +25,7 @@ func Create(c *gin.Context) {
 	var response types.CreateMemberResponse
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 	// -----验证操作权限 : 无权限返回 PermDenied ------ //
@@ -33,20 +33,20 @@ func Create(c *gin.Context) {
 	cookie, err := c.Cookie("camp-session")
 	if err != nil {
 		response.Code = types.LoginRequired // cookie 过期，用户未登录
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 	requester, errNo := db.GetMemberByID(cookie)
 	if errNo != types.OK {
 		response.Data.UserID = requester.UserID
 		response.Code = errNo
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
 	if requester.UserType != types.Admin {
 		response.Code = types.PermDenied
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
@@ -55,14 +55,14 @@ func Create(c *gin.Context) {
 	// ---- 验证用户昵称: 不小于 4 位，不超过 20 位 ----
 	if len(request.Nickname) < 4 || len(request.Nickname) > 20 {
 		response.Code = types.ParamInvalid
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
 	// ---- 验证用户名 ----
 	if len(request.Username) < 8 || len(request.Username) > 20 {
 		response.Code = types.ParamInvalid
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
@@ -70,7 +70,7 @@ func Create(c *gin.Context) {
 		char := request.Username[i]
 		if char < 'A' || char > 'z' || char > 'Z' && char < 'a' {
 			response.Code = types.ParamInvalid
-			fail(&response, c)
+			failFmt(&response, c)
 			return
 		}
 	}
@@ -78,7 +78,7 @@ func Create(c *gin.Context) {
 	// ---- 验证密码 ----
 	if len(request.Password) < 8 || len(request.Password) > 20 {
 		response.Code = types.ParamInvalid
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
@@ -96,21 +96,21 @@ func Create(c *gin.Context) {
 			HasBigCase = true
 		} else {
 			response.Code = types.ParamInvalid
-			fail(&response, c)
+			failFmt(&response, c)
 			return
 		}
 	}
 
 	if !HasNum || !HasLowCase || !HasBigCase {
 		response.Code = types.ParamInvalid
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
 	// ---- 验证用户类型 ----
 	if request.UserType != types.Admin && request.UserType != types.Student && request.UserType != types.Teacher {
 		response.Code = types.ParamInvalid
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
@@ -122,7 +122,7 @@ func Create(c *gin.Context) {
 	if count != 0 {
 		response.Code = types.UserHasExisted
 		response.Data.UserID = ""
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 

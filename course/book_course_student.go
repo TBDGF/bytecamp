@@ -24,7 +24,7 @@ func BookCourse(c *gin.Context) {
 	var response types.BookCourseResponse
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(&response, c, err)
+		failLog(&response, c, err)
 		return
 	}
 
@@ -33,14 +33,14 @@ func BookCourse(c *gin.Context) {
 	ret, errNo := redis_server.GetMemberByID(request.StudentID)
 	if errNo == types.UserNotExisted || errNo == types.UserHasDeleted || ret.UserType != types.Student {
 		response.Code = types.StudentNotExisted
-		fail(&response, c)
+		failLog(&response, c)
 		return
 	}
 
 	// --- 验证是否课程已绑定过, 错误返回StudentHasCourse --- //
 	if result, _ := redis_server.GetStudentSchedule(request.StudentID, request.CourseID); result == true {
 		response.Code = types.StudentHasCourse
-		fail(&response, c)
+		failLog(&response, c)
 		return
 	}
 
@@ -48,12 +48,12 @@ func BookCourse(c *gin.Context) {
 	avail, errNo := redis_server.GetCourseAvailByID(request.CourseID)
 	if errNo != types.OK {
 		response.Code = errNo
-		fail(&response, c)
+		failLog(&response, c)
 		return
 	}
 	if avail <= 0 { // 容量不足
 		response.Code = types.CourseNotAvailable
-		fail(&response, c)
+		failLog(&response, c)
 		return
 	}
 
@@ -67,12 +67,12 @@ func BookCourse(c *gin.Context) {
 		} else if err.Error() == "CourseNotAvailable" {
 			log.Println(request.CourseID, err)
 			response.Code = types.CourseNotAvailable
-			fail(&response, c)
+			failLog(&response, c)
 			return
 		} else if err.Error() == "CourseNotExisted" {
 			log.Println(request.CourseID, err)
 			response.Code = types.CourseNotExisted
-			fail(&response, c)
+			failLog(&response, c)
 			return
 		} else {
 			log.Println(err, "retry")

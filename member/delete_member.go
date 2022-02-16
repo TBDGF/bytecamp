@@ -1,7 +1,6 @@
 package member
 
 import (
-	"bytedance/auth"
 	"bytedance/db"
 	"bytedance/redis_server"
 	"bytedance/types"
@@ -15,17 +14,19 @@ func Delete(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.UnknownError
-		fail(response, c, err)
+		failFmt(response, c, err)
 		return
 	}
 
 	//删除cookie
-	auth.Logout(c)
+	// 删除 cookie
+	c.SetCookie("camp-session", "", -1, "/",
+		"", false, true)
 
 	// 删除成员
 	if _, errNo := db.GetMemberByID(request.UserID); errNo != types.OK {
 		response.Code = errNo
-		fail(response, c)
+		failFmt(response, c)
 		return
 	}
 	redis_server.DeleteMemberByID(request.UserID)

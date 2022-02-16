@@ -62,7 +62,7 @@ func GetCourseSchedule(c *gin.Context) {
 	var response types.ScheduleCourseResponse
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 

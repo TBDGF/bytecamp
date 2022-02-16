@@ -15,21 +15,21 @@ func BindCourseTeacher(c *gin.Context) {
 
 	if err := c.Bind(&request); err != nil {
 		response.Code = types.ParamInvalid
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 
 	course, errNo := db.GetCourseByID(request.CourseID)
 	if errNo != types.OK {
 		response.Code = errNo
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 
 	//判断是否重复绑定
 	if course.TeacherID != "" {
 		response.Code = types.CourseHasBound
-		fail(&response, c)
+		failFmt(&response, c)
 		return
 	}
 

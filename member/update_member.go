@@ -15,24 +15,24 @@ func Update(c *gin.Context) {
 	err := c.Bind(&request)
 	if err != nil {
 		response.Code = types.ParamInvalid
-		fail(response, c, err)
+		failFmt(response, c, err)
 		return
 	}
 
 	// ---- 验证用户昵称: 不小于 4 位，不超过 20 位 ----
 	if len(request.Nickname) < 4 || len(request.Nickname) > 20 {
 		response.Code = types.ParamInvalid
-		fail(response, c)
+		failFmt(response, c)
 		return
 	}
 	if err != nil {
 		response.Code = types.ParamInvalid
-		fail(response, c, err)
+		failFmt(response, c, err)
 		return
 	}
 	if _, errNo := db.GetMemberByID(request.UserID); errNo != types.OK {
 		response.Code = errNo
-		fail(response, c)
+		failFmt(response, c)
 		return
 	}
 	redis_server.DeleteMemberByID(request.UserID)

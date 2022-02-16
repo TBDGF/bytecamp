@@ -15,7 +15,7 @@ func Whoami(c *gin.Context) {
 	var response types.WhoAmIResponse
 	if err != nil {
 		response.Code = types.LoginRequired
-		fail(&response, c, err)
+		failFmt(&response, c, err)
 		return
 	}
 
