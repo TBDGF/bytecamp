@@ -75,23 +75,7 @@ func BookCourse(c *gin.Context) {
 		}
 	}
 
-	//
-	//if avail <= 0 { // 容量不足
-	//	response.Code = types.CourseNotAvailable
-	//	fail(&response, c)
-	//	return
-	//}
-	//
-	////redis课程容量自减
-	//availableInt64, err := redis_server.NewClient().Decr(redis_server.GetKeyOfCourseAvail(request.CourseID)).Result()
-	//avail = int(availableInt64)
-	//if err != nil {
-	//	response.Code = types.UnknownError
-	//	fail(&response, c, err)
-	//	return
-	//}
 	success(&response, c)
-
 	//redis添加关系
 	redis_server.NewClient().Set(redis_server.GetKeyOfStudentSchedule(request.StudentID, request.CourseID), 1, 0)
 
