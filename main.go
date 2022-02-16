@@ -12,9 +12,9 @@ import (
 
 func main() {
 	r := gin.Default()
+	router.RegisterRouter(r) // 路由
 	db.InitDB()              // 数据库
 	redis_server.InitRedis() // redis连接
-	router.RegisterRouter(r) // 路由
 	// 日志输出到文件
 	file := "./" + "message" + ".log"
 	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
