@@ -17,6 +17,7 @@ const (
 	database    string = "camp"
 )
 
+// InitDB 初始化数据库连接
 func InitDB() {
 	var err error
 	Db, err = sqlx.Connect("mysql",
@@ -28,6 +29,7 @@ func InitDB() {
 	log.Println("Successfully init database.")
 }
 
+// NewDB 其他模块调用此方法以获取连接
 func NewDB() *sqlx.DB {
 	return Db
 }

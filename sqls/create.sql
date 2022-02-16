@@ -48,6 +48,9 @@ create index idx_course_id
 create index idx_teacher_id
     on teacher_schedule (teacher_id);
 
+create unique index uni_idx_teacher_course
+    on teacher_schedule (teacher_id,course_id);
+
 create table student_schedule
 (
     schedule_id int auto_increment,

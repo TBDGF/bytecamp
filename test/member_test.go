@@ -37,7 +37,7 @@ func TestMembers(t *testing.T) {
 	defer file.Close()
 
 	file.WriteString("Username,Password,UserType\n")
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 100000; i++ {
 		fmt.Fprintln(file, randomString(16), ",", randomString(16)+"1", ",", int(math.Round(rand.Float64()))+2)
 	}
 }

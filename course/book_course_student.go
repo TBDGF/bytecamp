@@ -45,9 +45,14 @@ func BookCourse(c *gin.Context) {
 	}
 
 	//--- 验证课程是否存在与课程容量是否充足, 错误返回CourseNotExisted或CourseNotAvailable --- //
-	_, errNo = redis_server.GetCourseAvailByID(request.CourseID)
+	avail, errNo := redis_server.GetCourseAvailByID(request.CourseID)
 	if errNo != types.OK {
 		response.Code = errNo
+		fail(&response, c)
+		return
+	}
+	if avail <= 0 { // 容量不足
+		response.Code = types.CourseNotAvailable
 		fail(&response, c)
 		return
 	}
@@ -75,12 +80,6 @@ func BookCourse(c *gin.Context) {
 		}
 	}
 
-	//
-	//if avail <= 0 { // 容量不足
-	//	response.Code = types.CourseNotAvailable
-	//	fail(&response, c)
-	//	return
-	//}
 	//
 	////redis课程容量自减
 	//availableInt64, err := redis_server.NewClient().Decr(redis_server.GetKeyOfCourseAvail(request.CourseID)).Result()

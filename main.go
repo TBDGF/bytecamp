@@ -10,8 +10,11 @@ import (
 
 func main() {
 	r := gin.Default()
-	db.InitDB()              // 数据库
-	redis_server.InitRedis() // redis连接
-	router.RegisterRouter(r) // 路由
+	//路由
+	router.RegisterRouter(r)
+	// 数据库
+	db.InitDB()
+	// redis连接
+	redis_server.InitRedis()
 	r.Run(":80")
 }

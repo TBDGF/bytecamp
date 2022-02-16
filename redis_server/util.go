@@ -95,16 +95,15 @@ func TxDecr(key string) func(tx *redis.Tx) error {
 			return err
 		}
 
-		if n == 0 {
+		if n <= 0 {
 			return errors.New("CourseNotAvailable")
 		}
 
-		// actual opperation (local in optimistic lock)
+		// value自减
 		n = n - 1
 
-		// runs only if the watched keys remain unchanged
+		// 当watch的值并未发生改动时事务才会成功完成
 		_, err = tx.TxPipelined(func(pipe redis.Pipeliner) error {
-			// pipe handles the error case
 			pipe.Set(key, n, 0)
 			return nil
 		})

@@ -22,7 +22,7 @@ func TestTxDecr(t *testing.T) {
 	db.InitDB()
 	InitRedis()
 
-	studentAmount := 2000
+	studentAmount := 50000
 	courseAmount := 11
 	var wg sync.WaitGroup
 	wg.Add(studentAmount)
@@ -51,8 +51,8 @@ func TestTxDecr(t *testing.T) {
 					time.Sleep(time.Duration(rand.Intn(5)) * time.Millisecond)
 				}
 			}
-			//redis添加关系
-			NewClient().Set(GetKeyOfStudentSchedule(studentIDString, courseIDString), 1, 0)
+			////redis添加关系
+			//NewClient().Set(GetKeyOfStudentSchedule(studentIDString, courseIDString), 1, 0)
 
 			// --- 更新数据库 --- //
 			db.NewDB().Exec("update course set course_available = course_available-1 where course_id = ?", courseIDString)
